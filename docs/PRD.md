@@ -21,7 +21,7 @@ not exist. Two things follow:
   site later adds SPF and DMARC, an unaligned envelope sender can turn "spam
   folder" into "rejected".
 
-Observed result: on indianopinion.org, before a fix of this kind, every core
+Observed result: on the site this project came out of, before a fix of this kind, every core
 notification left from a `wordpress@` address with no mailbox behind it, so
 every bounce had nowhere to go. No delivery figures were recorded; this is an
 observation, not a benchmark.
