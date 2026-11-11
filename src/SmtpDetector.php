@@ -23,7 +23,7 @@ final class SmtpDetector
     public const MARKERS = [
         [
             'name' => 'WP Mail SMTP',
-            'slugs' => ['wp-mail-smtp', 'wp-mail-smtp-pro'],
+            'slugs' => ['wp-mail-smtp'],
             'constants' => ['WPMS_PLUGIN_VER'],
             'classes' => ['WPMailSMTP\\Core'],
             'functions' => ['wp_mail_smtp'],
