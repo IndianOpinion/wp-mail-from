@@ -1,2 +1,7 @@
-vendor/
-.phpunit.cache/
+/vendor/
+/.phpunit.cache/
+/.phpcs-cache
+/build/
+/composer.lock
+*.zip
+.DS_Store
