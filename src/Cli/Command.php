@@ -124,6 +124,9 @@ final class Command
             update_option(Options::SITE_OPTION, $stored);
         }
         $this->resolver->flush();
+        if (!$network && $this->settings->lockedOnNetwork($field)) {
+            \WP_CLI::warning($field . ' is locked at network level; this site value is ignored.');
+        }
         if (defined(Options::CONSTANTS[$field])) {
             \WP_CLI::warning(Options::CONSTANTS[$field] . ' is defined in wp-config.php and takes precedence.');
         }

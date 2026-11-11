@@ -167,7 +167,7 @@ final class Settings
             }
         }
         if (array_key_exists('locked', $input)) {
-            $locked = is_array($input['locked']) ? array_map('strval', $input['locked']) : [];
+            $locked = is_array($input['locked']) ? array_filter($input['locked'], 'is_string') : [];
             $stored['locked'] = array_values(array_intersect(Options::LOCKABLE_FIELDS, $locked));
         }
         if (array_key_exists('allowed_domains', $input)) {
@@ -175,6 +175,9 @@ final class Settings
             $list = is_array($raw) ? $raw : preg_split('/[\s,]+/', is_string($raw) ? $raw : '');
             $domains = [];
             foreach (is_array($list) ? $list : [] as $domain) {
+                if (!is_scalar($domain)) {
+                    continue;
+                }
                 $domain = strtolower(trim((string) $domain));
                 if ($domain === '') {
                     continue;
@@ -206,6 +209,14 @@ final class Settings
         return !($this->cli ?? (defined('WP_CLI') && WP_CLI));
     }
 
+    /**
+     * Whether the network has locked a field, so a per-site value is ignored (C54).
+     */
+    public function lockedOnNetwork(string $field): bool
+    {
+        return is_multisite() && $this->options->isLocked($field);
+    }
+
     public function domainAllowed(string $address, int $siteId): bool
     {
         $domain = Domains::domainOf($address);
@@ -229,7 +240,9 @@ final class Settings
         }
         $this->reported[$field] = true;
         if (function_exists('add_settings_error')) {
-            add_settings_error(Options::SITE_OPTION, 'wpmf_' . $field, $message, 'error');
+            // settings_errors() prints the message as HTML, and the message
+            // quotes the rejected input, so escape it here.
+            add_settings_error(Options::SITE_OPTION, 'wpmf_' . $field, esc_html($message), 'error');
         }
     }
 }

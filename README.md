@@ -299,7 +299,11 @@ each change is prefixed `would-`.
 
 The plugin detects WP Mail SMTP, FluentSMTP, Post SMTP and Easy WP SMTP by
 public markers (active plugin directory, or a public constant, class or
-function name). It never reads their settings.
+function name). It never reads their settings. The directory slugs are
+checked against the wordpress.org directory; the constant, class and function
+names are best effort and were not checked against the plugins' source (see
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)). If detection misses your
+plugin, add a marker with `wpmf_smtp_markers`.
 
 | `WPMF_SMTP_MODE` | Behaviour when one is detected |
 |---|---|
@@ -386,8 +390,10 @@ values in place.
 `show --message-from` shows what the plugin would do to a message carrying
 that From header. Nothing is sent.
 
-`set` validates with the same rules as the settings screen. `reset` deletes
-the stored settings; constants still apply.
+`set` validates with the same rules as the settings screen, except the
+multisite domain rule: a shell user is trusted. It warns when a constant or a
+network lock means the stored value will be ignored. `reset` deletes the
+stored settings; constants still apply.
 
 The envelope sender line always reads "envelope sender requested; the
 transport may override it". With PHP's `mail()`, PHPMailer only passes the

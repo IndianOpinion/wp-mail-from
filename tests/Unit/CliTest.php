@@ -128,6 +128,11 @@ final class CliTest extends TestCase
         $command->set(['explicit_mode', 'align'], ['network' => '']);
         $this->assertSame('align', get_site_option(Options::NETWORK_OPTION)['explicit_mode']);
 
+        // A site value for a field the network locked is stored but ignored: say so.
+        $this->networkOption(['locked' => ['from_name']]);
+        $command->set(['from_name', 'Site Name'], []);
+        $this->assertStringContainsString('Warning: from_name is locked at network level', $this->cliOutput());
+
         $command->reset([], ['yes' => '']);
         $this->assertFalse(get_option(Options::SITE_OPTION));
         $command->reset([], ['network' => '', 'yes' => '']);

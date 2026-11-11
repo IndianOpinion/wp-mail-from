@@ -24,6 +24,17 @@ final class NetworkSettings
         'return_path' => 'Envelope sender (return path)',
     ];
 
+    /** Lockable fields this screen shows a lock box for. */
+    private const SCREEN_LOCKS = [
+        'from',
+        'from_name',
+        'reply_to',
+        'return_path',
+        'explicit_mode',
+        'sender_mode',
+        'smtp_mode',
+    ];
+
     public function __construct(
         private readonly Options $options,
         private readonly Settings $settings
@@ -126,8 +137,16 @@ final class NetworkSettings
             }
             $input = $raw;
         }
-        if (isset($input['locked_present']) && !isset($input['locked'])) {
-            $input['locked'] = [];
+        if (isset($input['locked_present'])) {
+            // The form only has lock boxes for SCREEN_LOCKS. A lock on any
+            // other field (set another way) is kept, not silently dropped.
+            $posted = isset($input['locked']) && is_array($input['locked'])
+                ? array_filter($input['locked'], 'is_string')
+                : [];
+            $input['locked'] = array_merge(
+                array_values(array_intersect($posted, self::SCREEN_LOCKS)),
+                array_values(array_diff($this->options->lockedFields(), self::SCREEN_LOCKS))
+            );
         }
         unset($input['locked_present']);
 

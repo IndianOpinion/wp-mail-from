@@ -86,6 +86,12 @@ final class SettingsTest extends TestCase
         $codes = array_column(\WP::$settingsErrors, 'code');
         $this->assertSame(['wpmf_from', 'wpmf_explicit_mode'], $codes);
         $this->assertStringContainsString('domain-without-dot', \WP::$settingsErrors[0]['message']);
+
+        // settings_errors() prints messages as HTML: the quoted input is escaped.
+        \WP::$settingsErrors = [];
+        $this->settings()->sanitizeSiteOption(['reply_to' => '<script>x</script>@nodot']);
+        $this->assertStringContainsString('&lt;script&gt;', \WP::$settingsErrors[0]['message']);
+        $this->assertStringNotContainsString('<script>', \WP::$settingsErrors[0]['message']);
     }
 
     /** T44 (C43): through update_option, as options.php does it. */
@@ -169,6 +175,13 @@ final class SettingsTest extends TestCase
 
         $network->save(['locked_present' => '1']);
         $this->assertSame([], \WP::$siteOptions[Options::NETWORK_OPTION]['locked'], 'unticking every lock clears them');
+
+        // Locks on fields the screen has no box for survive a save from the screen.
+        \WP::$siteOptions[Options::NETWORK_OPTION]['locked'] = ['dry_run', 'log_failures'];
+        $network->save(['locked_present' => '1', 'locked' => ['smtp_mode', ['nested']]]);
+        $this->assertSame(['smtp_mode', 'dry_run', 'log_failures'], \WP::$siteOptions[Options::NETWORK_OPTION]['locked']);
+        $network->save(['locked_present' => '1']);
+        $this->assertSame(['dry_run', 'log_failures'], \WP::$siteOptions[Options::NETWORK_OPTION]['locked']);
 
         \WP::$caps['manage_network_options'] = false;
         $network->save(['from' => 'other@example.org']);
