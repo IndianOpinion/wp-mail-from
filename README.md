@@ -467,6 +467,10 @@ wp option delete wpmf_settings               # per site
 wp site option delete wpmf_network_settings  # multisite network
 ```
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Licence
 
 MIT. See [LICENSE](LICENSE).
